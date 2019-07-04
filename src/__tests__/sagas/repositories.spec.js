@@ -1,13 +1,17 @@
 import { runSaga } from "redux-saga";
+import api from "../../services/api";
+import MockAdapter from "axios-mock-adapter";
 
 import { getRepositories } from "../../store/sagas/repositories";
 import { Creators as RepositoriesActions } from "../../store/ducks/repositories";
 
-const response = [{}];
+const apiMock = new MockAdapter(api);
 
 describe("Repositories Saga", () => {
   it("should be able to fetch repositories", async () => {
     const dispatched = [];
+
+    apiMock.onGet("users/delapria/repos").reply(200, ["Repo 1", "Repo 2"]);
 
     await runSaga(
       {
@@ -18,6 +22,8 @@ describe("Repositories Saga", () => {
       getRepositories
     ).toPromise();
 
-    expect(dispatched).toContainEqual(RepositoriesActions.getSuccess(response));
+    expect(dispatched).toContainEqual(
+      RepositoriesActions.getSuccess(["Repo 1", "Repo 2"])
+    );
   });
 });
